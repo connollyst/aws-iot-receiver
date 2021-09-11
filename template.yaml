@@ -25,6 +25,20 @@ Resources:
       Dockerfile: Dockerfile
       DockerContext: ./src/main/lambdas/iot_atlas_misc
       DockerTag: python3.9-v1
+  IotAtlasHumiditySplitterFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      Events:
+        HelloWorld:
+          Type: Api
+          Properties:
+            Path: /drossish
+            Method: get
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: ./src/main/lambdas/iot_atlas_humidity_splitter
+      DockerTag: python3.9-v1
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
@@ -39,3 +53,12 @@ Outputs:
   IotAtlasMiscFunctionIamRole:
     Description: "Implicit IAM Role created for Hello World function"
     Value: !GetAtt IotAtlasMiscFunctionRole.Arn
+  IotAtlasHumiditySplitterApi:
+    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/dross/"
+  IotAtlasHumiditySplitterFunction:
+    Description: "Hello World Lambda Function ARN"
+    Value: !GetAtt IotAtlasHumiditySplitterFunction.Arn
+  IotAtlasHumiditySplitterFunctionIamRole:
+    Description: "Implicit IAM Role created for Hello World function"
+    Value: !GetAtt IotAtlasHumiditySplitterFunctionRole.Arn
