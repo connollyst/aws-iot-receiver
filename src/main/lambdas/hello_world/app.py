@@ -1,4 +1,16 @@
+import copy
 import json
+import os
+
+import boto3
+
+
+def publish_message(client, topic, message):
+    try:
+        client.publish(topic=topic, payload=json.dumps(message, default=str))
+    except Exception as e:
+        print(e)
+        raise e
 
 
 def lambda_handler(event, context):
@@ -22,12 +34,34 @@ def lambda_handler(event, context):
 
         Return doc: https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
     """
-
+    print(event)
+    module = event['module']
+    value = event['reading']['value']
+    if module == 'RTD':
+        type = 'temperature'
+        value = float(value)
+    elif module == 'Relay':
+        type = 'switch'
+        if value == 'ON':
+            value = 1  # True
+        elif value == 'OFF':
+            value = 0  # False
+        else:
+            print('Unsupported switch value: {}'.format(value))
+    else:
+        type = 'other'
+    message = copy.deepcopy(event)
+    message['reading']['type'] = type
+    message['reading']['value'] = value
+    client = boto3.client('iot-data')
+    topic = os.environ['IOT_MQTT_TOPIC']
+    publish_message(client, topic, message)
     return {
-        "statusCode": 200,
-        "body": json.dumps(
-            {
-                "message": "hello sean",
+        'statusCode': 200,
+        'body': {
+            'topic': topic,
+            'messages': {
+                type: message
             }
-        ),
+        }
     }
