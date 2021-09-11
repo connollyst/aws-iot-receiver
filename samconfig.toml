@@ -8,4 +8,4 @@ s3_prefix = "aws-iot-receiver"
 region = "us-west-2"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
-image_repositories = ["DrossFunction=050210506452.dkr.ecr.us-west-2.amazonaws.com/awsiotreceiver41130b41/drossfunction1847f66drepo"]
+image_repositories = ["IotAtlasMiscFunction=050210506452.dkr.ecr.us-west-2.amazonaws.com/awsiotreceiver41130b41/iotatlasmiscfunction15714fa4repo"]
