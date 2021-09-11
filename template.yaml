@@ -23,7 +23,7 @@ Resources:
             Method: get
     Metadata:
       Dockerfile: Dockerfile
-      DockerContext: ./hello_world
+      DockerContext: ./src/main/lambdas/iot_atlas_misc
       DockerTag: python3.9-v1
 
 Outputs:

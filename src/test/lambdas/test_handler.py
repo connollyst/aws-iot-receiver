@@ -3,7 +3,7 @@ from unittest import mock
 
 import pytest
 
-from src.main.lambdas.hello_world import app
+from src.main.lambdas.iot_atlas_misc import app
 
 
 @pytest.fixture()
