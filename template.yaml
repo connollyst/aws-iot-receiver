@@ -10,6 +10,7 @@ Globals:
     Timeout: 3
 
 Resources:
+  # Lambda Functions
   IotAtlasMiscFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -38,6 +39,18 @@ Resources:
       Dockerfile: Dockerfile
       DockerContext: ./src/main/lambdas/iot_atlas_humidity_splitter
       DockerTag: python3.9-v1
+  # IoT Rules:
+  IoTAtlasProcessMiscSensorsRule:
+    Type: AWS::IoT::TopicRule
+    Properties:
+      RuleName: ProcessMiscSensors
+      TopicRulePayload:
+        AwsIotSqlVersion: "2016-03-23"
+        Sql: SELECT * FROM 'atlas/routing' WHERE module <> 'HUM'
+        Actions:
+          - Lambda:
+              FunctionArn: !GetAtt IotAtlasMiscFunction.Arn
+
 
 Outputs:
   IotAtlasMiscApi:
