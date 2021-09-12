@@ -50,6 +50,10 @@ Resources:
         Actions:
           - Lambda:
               FunctionArn: !GetAtt IotAtlasMiscFunction.Arn
+        ErrorAction:
+          CloudwatchLogs:
+            LogGroupName: /aws/iot/core/rules/errors
+            RoleArn: arn:aws:iam::050210506452:role/service-role/IotTimestreamDeleteme
   IoTAtlasSplitHumiditySensorReadingsRule:
     Type: AWS::IoT::TopicRule
     Properties:
@@ -60,6 +64,10 @@ Resources:
         Actions:
           - Lambda:
               FunctionArn: !GetAtt IotAtlasHumiditySplitterFunction.Arn
+        ErrorAction:
+          CloudwatchLogs:
+            LogGroupName: /aws/iot/core/rules/errors
+            RoleArn: arn:aws:iam::050210506452:role/service-role/IotTimestreamDeleteme
 
 Outputs:
   IotAtlasMiscApi:
