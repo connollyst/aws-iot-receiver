@@ -68,7 +68,38 @@ Resources:
           CloudwatchLogs:
             LogGroupName: /aws/iot/core/rules/errors
             RoleArn: arn:aws:iam::050210506452:role/service-role/IotTimestreamDeleteme
-
+  IoTFilterAtlasErrorsRule:
+    Type: AWS::IoT::TopicRule
+    Properties:
+      RuleName: SAMFilterAtlasErrors
+      TopicRulePayload:
+        AwsIotSqlVersion: 2016-03-23
+        Sql: SELECT * FROM 'atlas' WHERE name <> 'Err' AND module <> 'Err' AND version <> 'Err' AND reading.value <> 'Err'
+        Actions:
+          - Republish:
+              Qos: 0
+              RoleArn: arn:aws:iam::050210506452:role/service-role/IotMqttRepublication
+              Topic: ${topic()}/routing
+        ErrorAction:
+          CloudwatchLogs:
+            LogGroupName: /aws/iot/core/rules/errors
+            RoleArn: arn:aws:iam::050210506452:role/service-role/IotTimestreamDeleteme
+  IoTRepublishAtlasErrorsRule:
+    Type: AWS::IoT::TopicRule
+    Properties:
+      RuleName: SAMRepublishAtlasErrors
+      TopicRulePayload:
+        AwsIotSqlVersion: 2016-03-23
+        Sql: SELECT * FROM 'atlas' WHERE name = 'Err' OR module = 'Err' OR version = 'Err' OR reading.value = 'Err'
+        Actions:
+          - Republish:
+              Qos: 0
+              RoleArn: arn:aws:iam::050210506452:role/service-role/IotMqttRepublication
+              Topic: ${topic()}/error
+        ErrorAction:
+          CloudwatchLogs:
+            LogGroupName: /aws/iot/core/rules/errors
+            RoleArn: arn:aws:iam::050210506452:role/service-role/IotTimestreamDeleteme
 Outputs:
   IotAtlasMiscApi:
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/iot-atlas-misc/"
