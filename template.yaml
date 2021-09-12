@@ -43,14 +43,23 @@ Resources:
   IoTAtlasProcessMiscSensorsRule:
     Type: AWS::IoT::TopicRule
     Properties:
-      RuleName: ProcessMiscSensors
+      RuleName: SAMProcessMiscSensors
       TopicRulePayload:
-        AwsIotSqlVersion: "2016-03-23"
+        AwsIotSqlVersion: 2016-03-23
         Sql: SELECT * FROM 'atlas/routing' WHERE module <> 'HUM'
         Actions:
           - Lambda:
               FunctionArn: !GetAtt IotAtlasMiscFunction.Arn
-
+  IoTAtlasSplitHumiditySensorReadingsRule:
+    Type: AWS::IoT::TopicRule
+    Properties:
+      RuleName: SAMSplitHumiditySensorReadings
+      TopicRulePayload:
+        AwsIotSqlVersion: 2016-03-23
+        Sql: SELECT * FROM 'atlas/routing' WHERE module = 'HUM' AND reading.value <> 'Err'
+        Actions:
+          - Lambda:
+              FunctionArn: !GetAtt IotAtlasHumiditySplitterFunction.Arn
 
 Outputs:
   IotAtlasMiscApi:
