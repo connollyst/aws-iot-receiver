@@ -1,0 +1,11 @@
+{
+  "address": "N/A",
+  "addressType": "N/A",
+  "name": "",
+  "module": "Motor Driver",
+  "version": "0.1",
+  "reading": {
+    "value": 20,
+    "timestamp": 1631054894.9632235
+  }
+}

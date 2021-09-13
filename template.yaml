@@ -15,12 +15,6 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Image
-      Events:
-        HelloWorld:
-          Type: Api
-          Properties:
-            Path: /iot-atlas-misc
-            Method: get
       Environment:
         Variables:
           MQTT_TOPIC: atlas/ready
@@ -36,12 +30,6 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Image
-      Events:
-        HelloWorld:
-          Type: Api
-          Properties:
-            Path: /iot-atlas-humidity-splitter
-            Method: get
       Environment:
         Variables:
           MQTT_TOPIC: atlas/ready
@@ -223,14 +211,10 @@ Resources:
             LogGroupName: /aws/iot/core/rules/errors
             RoleArn: arn:aws:iam::050210506452:role/service-role/IotTimestreamDeleteme
 Outputs:
-  IotAtlasMiscApi:
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/iot-atlas-misc/"
   IotAtlasMiscFunction:
     Value: !GetAtt IotAtlasMiscFunction.Arn
   IotAtlasMiscFunctionIamRole:
     Value: !GetAtt IotAtlasMiscFunctionRole.Arn
-  IotAtlasHumiditySplitterApi:
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/iot-atlas-humidity-splitter/"
   IotAtlasHumiditySplitterFunction:
     Value: !GetAtt IotAtlasHumiditySplitterFunction.Arn
   IotAtlasHumiditySplitterFunctionIamRole:
