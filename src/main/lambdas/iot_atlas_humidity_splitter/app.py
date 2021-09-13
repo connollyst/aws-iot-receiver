@@ -67,8 +67,9 @@ def lambda_handler(event, context):
         }
     humidity_reading, temp_reading, dew_reading = split(reading)
     humidity_message, temp_message, dew_message = construct(event, humidity_reading, temp_reading, dew_reading)
-    client = boto3.client('iot-data')
-    topic = os.environ['IOT_MQTT_TOPIC']
+    topic = os.environ['MQTT_TOPIC']
+    endpoint = os.environ['MQTT_ENDPOINT']
+    client = boto3.client('iot-data', endpoint_url=endpoint)
     publish(client, topic, humidity_message, temp_message, dew_message)
     return {
         'statusCode': 200,

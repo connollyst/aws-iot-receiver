@@ -6,11 +6,13 @@ import boto3
 
 
 def publish_message(client, topic, message):
-    try:
-        client.publish(topic=topic, payload=json.dumps(message, default=str))
-    except Exception as e:
-        print(e)
-        raise e
+    print('Publishing to MQTT topic "{}": {}'.format(topic, message))
+    # try:
+    client.publish(topic=topic, payload=json.dumps(message, default=str))
+    print('Done')
+    # except Exception as e:
+    #     print(e)
+    #     raise e
 
 
 def lambda_handler(event, context):
@@ -53,9 +55,12 @@ def lambda_handler(event, context):
     message = copy.deepcopy(event)
     message['reading']['type'] = type
     message['reading']['value'] = value
-    client = boto3.client('iot-data')
-    topic = os.environ['IOT_MQTT_TOPIC']
+    print('Creating Boto3 client for "iot-data"..')
+    topic = os.environ['MQTT_TOPIC']
+    endpoint = os.environ['MQTT_ENDPOINT']
+    client = boto3.client('iot-data', endpoint_url=endpoint)
     publish_message(client, topic, message)
+    print('Finished!')
     return {
         'statusCode': 200,
         'body': {

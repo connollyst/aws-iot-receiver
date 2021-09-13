@@ -21,6 +21,13 @@ Resources:
           Properties:
             Path: /iot-atlas-misc
             Method: get
+      Environment:
+        Variables:
+          MQTT_TOPIC: atlas/ready
+          MQTT_ENDPOINT: https://a12dev37b8fhwi-ats.iot.us-west-2.amazonaws.com
+      Timeout: 5
+      Policies:
+        arn:aws:iam::050210506452:policy/service-role/aws-iot-role-iotPublish_-2060296645
     Metadata:
       Dockerfile: Dockerfile
       DockerContext: ./src/main/lambdas/iot_atlas_misc
@@ -35,6 +42,13 @@ Resources:
           Properties:
             Path: /iot-atlas-humidity-splitter
             Method: get
+      Environment:
+        Variables:
+          MQTT_TOPIC: atlas/ready
+          MQTT_ENDPOINT: https://a12dev37b8fhwi-ats.iot.us-west-2.amazonaws.com
+      Timeout: 5
+      Policies:
+        arn:aws:iam::050210506452:policy/service-role/aws-iot-role-iotPublish_-2060296645
     Metadata:
       Dockerfile: Dockerfile
       DockerContext: ./src/main/lambdas/iot_atlas_humidity_splitter
