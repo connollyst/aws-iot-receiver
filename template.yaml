@@ -13,6 +13,8 @@ Resources:
   # Lambda Functions
   IotAtlasMiscFunction:
     Type: AWS::Serverless::Function
+    FunctionName: IotAtlasMisc
+    Description: Handler for miscellaneous Atlas Scientific readings.
     Properties:
       PackageType: Image
       Environment:
@@ -22,6 +24,12 @@ Resources:
       Timeout: 5
       Policies:
         arn:aws:iam::050210506452:policy/service-role/aws-iot-role-iotPublish_-2060296645
+      Events:
+        Trigger:
+          Type: IoTRule
+          Properties:
+            AwsIotSqlVersion: 2016-03-23
+            Sql: SELECT * FROM 'atlas/routing' WHERE module <> 'HUM'
     Metadata:
       Dockerfile: Dockerfile
       DockerContext: ./src/main/lambdas/iot_atlas_misc
@@ -37,43 +45,21 @@ Resources:
       Timeout: 5
       Policies:
         arn:aws:iam::050210506452:policy/service-role/aws-iot-role-iotPublish_-2060296645
+      Events:
+        Trigger:
+          Type: IoTRule
+          Properties:
+            AwsIotSqlVersion: 2016-03-23
+            Sql: SELECT * FROM 'atlas/routing' WHERE module = 'HUM' AND reading.value <> 'Err'
     Metadata:
       Dockerfile: Dockerfile
       DockerContext: ./src/main/lambdas/iot_atlas_humidity_splitter
       DockerTag: python3.9-v1
   # IoT Rules:
-  IoTAtlasProcessMiscSensorsRule:
-    Type: AWS::IoT::TopicRule
-    Properties:
-      RuleName: SAMProcessMiscSensors
-      TopicRulePayload:
-        AwsIotSqlVersion: 2016-03-23
-        Sql: SELECT * FROM 'atlas/routing' WHERE module <> 'HUM'
-        Actions:
-          - Lambda:
-              FunctionArn: !GetAtt IotAtlasMiscFunction.Arn
-        ErrorAction:
-          CloudwatchLogs:
-            LogGroupName: /aws/iot/core/rules/errors
-            RoleArn: arn:aws:iam::050210506452:role/service-role/IotTimestreamDeleteme
-  IoTAtlasSplitHumiditySensorReadingsRule:
-    Type: AWS::IoT::TopicRule
-    Properties:
-      RuleName: SAMSplitHumiditySensorReadings
-      TopicRulePayload:
-        AwsIotSqlVersion: 2016-03-23
-        Sql: SELECT * FROM 'atlas/routing' WHERE module = 'HUM' AND reading.value <> 'Err'
-        Actions:
-          - Lambda:
-              FunctionArn: !GetAtt IotAtlasHumiditySplitterFunction.Arn
-        ErrorAction:
-          CloudwatchLogs:
-            LogGroupName: /aws/iot/core/rules/errors
-            RoleArn: arn:aws:iam::050210506452:role/service-role/IotTimestreamDeleteme
   IoTFilterAtlasErrorsRule:
     Type: AWS::IoT::TopicRule
     Properties:
-      RuleName: SAMFilterAtlasErrors
+      RuleName: FilterAtlasErrors
       TopicRulePayload:
         AwsIotSqlVersion: 2016-03-23
         Sql: SELECT * FROM 'atlas' WHERE name <> 'Err' AND module <> 'Err' AND version <> 'Err' AND reading.value <> 'Err'
@@ -89,7 +75,7 @@ Resources:
   IoTRepublishAtlasErrorsRule:
     Type: AWS::IoT::TopicRule
     Properties:
-      RuleName: SAMRepublishAtlasErrors
+      RuleName: RepublishAtlasErrors
       TopicRulePayload:
         AwsIotSqlVersion: 2016-03-23
         Sql: SELECT * FROM 'atlas' WHERE name = 'Err' OR module = 'Err' OR version = 'Err' OR reading.value = 'Err'
@@ -105,7 +91,7 @@ Resources:
   IoTLoadHumidityReadingsToTimestreamRule:
     Type: AWS::IoT::TopicRule
     Properties:
-      RuleName: SAMLoadHumidityReadingsToTimestream
+      RuleName: LoadHumidityReadingsToTimestream
       TopicRulePayload:
         AwsIotSqlVersion: 2016-03-23
         Sql: SELECT reading.value as humidity FROM 'atlas/ready' WHERE reading.type = 'humidity'
@@ -132,7 +118,7 @@ Resources:
   IoTLoadTemperatureReadingsToTimestreamRule:
     Type: AWS::IoT::TopicRule
     Properties:
-      RuleName: SAMLoadTemperatureReadingsToTimestream
+      RuleName: LoadTemperatureReadingsToTimestream
       TopicRulePayload:
         AwsIotSqlVersion: 2016-03-23
         Sql: SELECT reading.value as temperature FROM 'atlas/ready' WHERE reading.type = 'temperature'
@@ -159,7 +145,7 @@ Resources:
   IoTLoadSwitchReadingsToTimestreamRule:
     Type: AWS::IoT::TopicRule
     Properties:
-      RuleName: SAMLoadSwitchReadingsToTimestream
+      RuleName: LoadSwitchReadingsToTimestream
       TopicRulePayload:
         AwsIotSqlVersion: 2016-03-23
         Sql: SELECT reading.value as switch FROM 'atlas/ready' WHERE reading.type = 'switch'
@@ -186,7 +172,7 @@ Resources:
   IoTLoadOtherReadingsToTimestreamRule:
     Type: AWS::IoT::TopicRule
     Properties:
-      RuleName: SAMLoadOtherReadingsToTimestream
+      RuleName: LoadOtherReadingsToTimestream
       TopicRulePayload:
         AwsIotSqlVersion: 2016-03-23
         Sql: SELECT reading.value as other FROM 'atlas/ready' WHERE reading.type = 'other'
