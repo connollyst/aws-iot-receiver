@@ -11,6 +11,7 @@ Globals:
 
 Resources:
   # Lambda Functions
+  # Lambda to process all miscellaneous sensors
   IotAtlasMiscFunction:
     Type: AWS::Serverless::Function
     FunctionName: IotAtlasMisc
@@ -34,6 +35,7 @@ Resources:
       Dockerfile: Dockerfile
       DockerContext: ./src/main/lambdas/iot_atlas_misc
       DockerTag: python3.9-v1
+  # Lambda to split Humidity sensor readings
   IotAtlasHumiditySplitterFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -72,6 +74,7 @@ Resources:
           CloudwatchLogs:
             LogGroupName: /aws/iot/core/rules/errors
             RoleArn: arn:aws:iam::050210506452:role/service-role/IotTimestreamDeleteme
+  # IoT Rule to move all error readings to a separate topic
   IoTRepublishAtlasErrorsRule:
     Type: AWS::IoT::TopicRule
     Properties:
@@ -88,6 +91,7 @@ Resources:
           CloudwatchLogs:
             LogGroupName: /aws/iot/core/rules/errors
             RoleArn: arn:aws:iam::050210506452:role/service-role/IotTimestreamDeleteme
+  # Lambda to move all humidity readings to AWS Timestream
   IoTLoadHumidityReadingsToTimestreamRule:
     Type: AWS::IoT::TopicRule
     Properties:
@@ -115,6 +119,7 @@ Resources:
           CloudwatchLogs:
             LogGroupName: /aws/iot/core/rules/errors
             RoleArn: arn:aws:iam::050210506452:role/service-role/IotTimestreamDeleteme
+  # Lambda to move all temperature readings to AWS Timestream
   IoTLoadTemperatureReadingsToTimestreamRule:
     Type: AWS::IoT::TopicRule
     Properties:
@@ -142,6 +147,35 @@ Resources:
           CloudwatchLogs:
             LogGroupName: /aws/iot/core/rules/errors
             RoleArn: arn:aws:iam::050210506452:role/service-role/IotTimestreamDeleteme
+  # Lambda to move all temperature readings to AWS Timestream
+  IoTLoadLevelReadingsToTimestreamRule:
+    Type: AWS::IoT::TopicRule
+    Properties:
+      RuleName: LoadLevelReadingsToTimestream
+      TopicRulePayload:
+        AwsIotSqlVersion: 2016-03-23
+        Sql: SELECT reading.value as level FROM 'atlas/ready' WHERE reading.type = 'level'
+        Actions:
+          - Timestream:
+              DatabaseName: iot
+              TableName: atlas-v3
+              Dimensions:
+                - Name: device_name
+                  Value: Undefined
+                - Name: device_version
+                  Value: ${version}
+                - Name: device_type
+                  Value: ${module}
+                - Name: device_address_type
+                  Value: I2C
+                - Name: device_address
+                  Value: ${address}
+              RoleArn: arn:aws:iam::050210506452:role/service-role/IotTimestreamWrite
+        ErrorAction:
+          CloudwatchLogs:
+            LogGroupName: /aws/iot/core/rules/errors
+            RoleArn: arn:aws:iam::050210506452:role/service-role/IotTimestreamDeleteme
+  # Lambda to move all switch readings to AWS Timestream
   IoTLoadSwitchReadingsToTimestreamRule:
     Type: AWS::IoT::TopicRule
     Properties:
@@ -169,6 +203,7 @@ Resources:
           CloudwatchLogs:
             LogGroupName: /aws/iot/core/rules/errors
             RoleArn: arn:aws:iam::050210506452:role/service-role/IotTimestreamDeleteme
+  # Lambda to move all other readings to AWS Timestream
   IoTLoadOtherReadingsToTimestreamRule:
     Type: AWS::IoT::TopicRule
     Properties:

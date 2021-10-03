@@ -39,6 +39,7 @@ def lambda_handler(event, context):
     print(event)
     module = event['module']
     value = event['reading']['value']
+    type = event['reading']['type']
     if module == 'RTD':
         type = 'temperature'
         value = float(value)
@@ -50,7 +51,7 @@ def lambda_handler(event, context):
             value = 0  # False
         else:
             print('Unsupported switch value: {}'.format(value))
-    else:
+    elif type is not None:
         type = 'other'
     message = copy.deepcopy(event)
     message['reading']['type'] = type
