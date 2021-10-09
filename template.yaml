@@ -20,7 +20,7 @@ Resources:
       PackageType: Image
       Environment:
         Variables:
-          MQTT_TOPIC: atlas/ready
+          MQTT_TOPIC: iot/devices/readings/ready
           MQTT_ENDPOINT: https://a12dev37b8fhwi-ats.iot.us-west-2.amazonaws.com
       Timeout: 5
       Policies:
@@ -30,7 +30,7 @@ Resources:
           Type: IoTRule
           Properties:
             AwsIotSqlVersion: 2016-03-23
-            Sql: SELECT * FROM 'atlas/routing' WHERE module <> 'HUM'
+            Sql: SELECT * FROM 'iot/devices/readings/routing' WHERE module <> 'HUM'
     Metadata:
       Dockerfile: Dockerfile
       DockerContext: ./src/main/lambdas/iot_atlas_misc
@@ -42,7 +42,7 @@ Resources:
       PackageType: Image
       Environment:
         Variables:
-          MQTT_TOPIC: atlas/ready
+          MQTT_TOPIC: iot/devices/readings/ready
           MQTT_ENDPOINT: https://a12dev37b8fhwi-ats.iot.us-west-2.amazonaws.com
       Timeout: 5
       Policies:
@@ -52,7 +52,7 @@ Resources:
           Type: IoTRule
           Properties:
             AwsIotSqlVersion: 2016-03-23
-            Sql: SELECT * FROM 'atlas/routing' WHERE module = 'HUM' AND reading.value <> 'Err'
+            Sql: SELECT * FROM 'iot/devices/readings/routing' WHERE module = 'HUM' AND reading.value <> 'Err'
     Metadata:
       Dockerfile: Dockerfile
       DockerContext: ./src/main/lambdas/iot_atlas_humidity_splitter
@@ -64,7 +64,7 @@ Resources:
       RuleName: FilterAtlasErrors
       TopicRulePayload:
         AwsIotSqlVersion: 2016-03-23
-        Sql: SELECT * FROM 'atlas' WHERE name <> 'Err' AND module <> 'Err' AND version <> 'Err' AND reading.value <> 'Err'
+        Sql: SELECT * FROM 'iot/devices/readings' WHERE name <> 'Err' AND module <> 'Err' AND version <> 'Err' AND reading.value <> 'Err'
         Actions:
           - Republish:
               Qos: 0
@@ -81,7 +81,7 @@ Resources:
       RuleName: RepublishAtlasErrors
       TopicRulePayload:
         AwsIotSqlVersion: 2016-03-23
-        Sql: SELECT * FROM 'atlas' WHERE name = 'Err' OR module = 'Err' OR version = 'Err' OR reading.value = 'Err'
+        Sql: SELECT * FROM 'iot/devices/readings' WHERE name = 'Err' OR module = 'Err' OR version = 'Err' OR reading.value = 'Err'
         Actions:
           - Republish:
               Qos: 0
@@ -98,11 +98,11 @@ Resources:
       RuleName: LoadHumidityReadingsToTimestream
       TopicRulePayload:
         AwsIotSqlVersion: 2016-03-23
-        Sql: SELECT reading.value as humidity FROM 'atlas/ready' WHERE reading.type = 'humidity'
+        Sql: SELECT reading.value as humidity FROM 'iot/devices/readings/ready' WHERE reading.type = 'humidity'
         Actions:
           - Timestream:
               DatabaseName: iot
-              TableName: atlas-v3
+              TableName: fogponics-v1
               Dimensions:
                 - Name: device_name
                   Value: Undefined
@@ -126,11 +126,11 @@ Resources:
       RuleName: LoadTemperatureReadingsToTimestream
       TopicRulePayload:
         AwsIotSqlVersion: 2016-03-23
-        Sql: SELECT reading.value as temperature FROM 'atlas/ready' WHERE reading.type = 'temperature'
+        Sql: SELECT reading.value as temperature FROM 'iot/devices/readings/ready' WHERE reading.type = 'temperature'
         Actions:
           - Timestream:
               DatabaseName: iot
-              TableName: atlas-v3
+              TableName: fogponics-v1
               Dimensions:
                 - Name: device_name
                   Value: Undefined
@@ -154,11 +154,11 @@ Resources:
       RuleName: LoadLevelReadingsToTimestream
       TopicRulePayload:
         AwsIotSqlVersion: 2016-03-23
-        Sql: SELECT reading.value as level FROM 'atlas/ready' WHERE reading.type = 'level'
+        Sql: SELECT reading.value as level FROM 'iot/devices/readings/ready' WHERE reading.type = 'level'
         Actions:
           - Timestream:
               DatabaseName: iot
-              TableName: atlas-v3
+              TableName: fogponics-v1
               Dimensions:
                 - Name: device_name
                   Value: Undefined
@@ -182,11 +182,11 @@ Resources:
       RuleName: LoadSwitchReadingsToTimestream
       TopicRulePayload:
         AwsIotSqlVersion: 2016-03-23
-        Sql: SELECT reading.value as switch FROM 'atlas/ready' WHERE reading.type = 'switch'
+        Sql: SELECT reading.value as switch FROM 'iot/devices/readings/ready' WHERE reading.type = 'switch'
         Actions:
           - Timestream:
               DatabaseName: iot
-              TableName: atlas-v3
+              TableName: fogponics-v1
               Dimensions:
                 - Name: device_name
                   Value: Undefined
@@ -210,11 +210,11 @@ Resources:
       RuleName: LoadOtherReadingsToTimestream
       TopicRulePayload:
         AwsIotSqlVersion: 2016-03-23
-        Sql: SELECT reading.value as other FROM 'atlas/ready' WHERE reading.type = 'other'
+        Sql: SELECT reading.value as other FROM 'iot/devices/readings/ready' WHERE reading.type = 'other'
         Actions:
           - Timestream:
               DatabaseName: iot
-              TableName: atlas-v3
+              TableName: fogponics-v1
               Dimensions:
                 - Name: device_name
                   Value: Undefined
